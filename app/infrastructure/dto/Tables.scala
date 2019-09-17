@@ -14,9 +14,63 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema: profile.SchemaDescription = Memo.schema ++ PlayEvolutions.schema ++ Tag.schema ++ Tagmemo.schema ++ User.schema
+  lazy val schema: profile.SchemaDescription = Label.schema ++ Labelmemo.schema ++ Memo.schema ++ PlayEvolutions.schema ++ User.schema
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
+
+  /** Entity class storing rows of table Label
+   *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
+   *  @param name Database column name SqlType(int4) */
+  case class LabelRow(id: Int, name: Int)
+  /** GetResult implicit for fetching LabelRow objects using plain SQL queries */
+  implicit def GetResultLabelRow(implicit e0: GR[Int]): GR[LabelRow] = GR{
+    prs => import prs._
+    LabelRow.tupled((<<[Int], <<[Int]))
+  }
+  /** Table description of table label. Objects of this class serve as prototypes for rows in queries. */
+  class Label(_tableTag: Tag) extends profile.api.Table[LabelRow](_tableTag, "label") {
+    def * = (id, name) <> (LabelRow.tupled, LabelRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = ((Rep.Some(id), Rep.Some(name))).shaped.<>({r=>import r._; _1.map(_=> LabelRow.tupled((_1.get, _2.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column id SqlType(serial), AutoInc, PrimaryKey */
+    val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column name SqlType(int4) */
+    val name: Rep[Int] = column[Int]("name")
+  }
+  /** Collection-like TableQuery object for table Label */
+  lazy val Label = new TableQuery(tag => new Label(tag))
+
+  /** Entity class storing rows of table Labelmemo
+   *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
+   *  @param memoId Database column memo_id SqlType(int4)
+   *  @param tagId Database column tag_id SqlType(int4) */
+  case class LabelmemoRow(id: Int, memoId: Int, tagId: Int)
+  /** GetResult implicit for fetching LabelmemoRow objects using plain SQL queries */
+  implicit def GetResultLabelmemoRow(implicit e0: GR[Int]): GR[LabelmemoRow] = GR{
+    prs => import prs._
+    LabelmemoRow.tupled((<<[Int], <<[Int], <<[Int]))
+  }
+  /** Table description of table labelmemo. Objects of this class serve as prototypes for rows in queries. */
+  class Labelmemo(_tableTag: Tag) extends profile.api.Table[LabelmemoRow](_tableTag, "labelmemo") {
+    def * = (id, memoId, tagId) <> (LabelmemoRow.tupled, LabelmemoRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = ((Rep.Some(id), Rep.Some(memoId), Rep.Some(tagId))).shaped.<>({r=>import r._; _1.map(_=> LabelmemoRow.tupled((_1.get, _2.get, _3.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column id SqlType(serial), AutoInc, PrimaryKey */
+    val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column memo_id SqlType(int4) */
+    val memoId: Rep[Int] = column[Int]("memo_id")
+    /** Database column tag_id SqlType(int4) */
+    val tagId: Rep[Int] = column[Int]("tag_id")
+
+    /** Foreign key referencing Label (database name labelmemo_tag_id_fkey) */
+    lazy val labelFk = foreignKey("labelmemo_tag_id_fkey", tagId, Label)(r => r.id, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
+    /** Foreign key referencing Memo (database name labelmemo_memo_id_fkey) */
+    lazy val memoFk = foreignKey("labelmemo_memo_id_fkey", memoId, Memo)(r => r.id, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
+  }
+  /** Collection-like TableQuery object for table Labelmemo */
+  lazy val Labelmemo = new TableQuery(tag => new Labelmemo(tag))
 
   /** Entity class storing rows of table Memo
    *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
@@ -84,60 +138,6 @@ trait Tables {
   }
   /** Collection-like TableQuery object for table PlayEvolutions */
   lazy val PlayEvolutions = new TableQuery(tag => new PlayEvolutions(tag))
-
-  /** Entity class storing rows of table Tag
-   *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
-   *  @param name Database column name SqlType(int4) */
-  case class TagRow(id: Int, name: Int)
-  /** GetResult implicit for fetching TagRow objects using plain SQL queries */
-  implicit def GetResultTagRow(implicit e0: GR[Int]): GR[TagRow] = GR{
-    prs => import prs._
-    TagRow.tupled((<<[Int], <<[Int]))
-  }
-  /** Table description of table tag. Objects of this class serve as prototypes for rows in queries. */
-  class Tag(_tableTag: Tag) extends profile.api.Table[TagRow](_tableTag, "tag") {
-    def * = (id, name) <> (TagRow.tupled, TagRow.unapply)
-    /** Maps whole row to an option. Useful for outer joins. */
-    def ? = ((Rep.Some(id), Rep.Some(name))).shaped.<>({r=>import r._; _1.map(_=> TagRow.tupled((_1.get, _2.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-
-    /** Database column id SqlType(serial), AutoInc, PrimaryKey */
-    val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
-    /** Database column name SqlType(int4) */
-    val name: Rep[Int] = column[Int]("name")
-  }
-  /** Collection-like TableQuery object for table Tag */
-  lazy val Tag = new TableQuery(tag => new Tag(tag))
-
-  /** Entity class storing rows of table Tagmemo
-   *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
-   *  @param memoId Database column memo_id SqlType(int4)
-   *  @param tagId Database column tag_id SqlType(int4) */
-  case class TagmemoRow(id: Int, memoId: Int, tagId: Int)
-  /** GetResult implicit for fetching TagmemoRow objects using plain SQL queries */
-  implicit def GetResultTagmemoRow(implicit e0: GR[Int]): GR[TagmemoRow] = GR{
-    prs => import prs._
-    TagmemoRow.tupled((<<[Int], <<[Int], <<[Int]))
-  }
-  /** Table description of table tagmemo. Objects of this class serve as prototypes for rows in queries. */
-  class Tagmemo(_tableTag: Tag) extends profile.api.Table[TagmemoRow](_tableTag, "tagmemo") {
-    def * = (id, memoId, tagId) <> (TagmemoRow.tupled, TagmemoRow.unapply)
-    /** Maps whole row to an option. Useful for outer joins. */
-    def ? = ((Rep.Some(id), Rep.Some(memoId), Rep.Some(tagId))).shaped.<>({r=>import r._; _1.map(_=> TagmemoRow.tupled((_1.get, _2.get, _3.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-
-    /** Database column id SqlType(serial), AutoInc, PrimaryKey */
-    val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
-    /** Database column memo_id SqlType(int4) */
-    val memoId: Rep[Int] = column[Int]("memo_id")
-    /** Database column tag_id SqlType(int4) */
-    val tagId: Rep[Int] = column[Int]("tag_id")
-
-    /** Foreign key referencing Memo (database name tagmemo_memo_id_fkey) */
-    lazy val memoFk = foreignKey("tagmemo_memo_id_fkey", memoId, Memo)(r => r.id, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
-    /** Foreign key referencing Tag (database name tagmemo_tag_id_fkey) */
-    lazy val tagFk = foreignKey("tagmemo_tag_id_fkey", tagId, Tag)(r => r.id, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.NoAction)
-  }
-  /** Collection-like TableQuery object for table Tagmemo */
-  lazy val Tagmemo = new TableQuery(tag => new Tagmemo(tag))
 
   /** Entity class storing rows of table User
    *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey

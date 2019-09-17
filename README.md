@@ -172,26 +172,26 @@ CREATE TABLE public.Memo(
   PRIMARY KEY (id)
 );
 
-CREATE TABLE public.Tag(
+CREATE TABLE public.Label(
   id SERIAL NOT NULL ,
   name INTEGER NOT NULL,
   PRIMARY KEY (id)
 );
 
 
-CREATE TABLE public.TagMemo(
+CREATE TABLE public.LabelMemo(
   id SERIAL NOT NULL,
   memo_id INTEGER NOT NULL REFERENCES public.Memo(id),
-  tag_id INTEGER NOT NULL REFERENCES public.Tag(id),
+  tag_id INTEGER NOT NULL REFERENCES public.Label(id),
   PRIMARY KEY (id)
 );
 
 
 -- !Downs
 DROP TABLE public.User CASCADE;
-DROP TABLE public.Tag CASCADE;
+DROP TABLE public.Label CASCADE;
 DROP TABLE public.Memo CASCADE;
-DROP TABLE public.TagMemo CASCADE;
+DROP TABLE public.LabelMemo CASCADE;
 
 
 ```
