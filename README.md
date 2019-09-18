@@ -182,7 +182,7 @@ CREATE TABLE public.Label(
 CREATE TABLE public.LabelMemo(
   id SERIAL NOT NULL,
   memo_id INTEGER NOT NULL REFERENCES public.Memo(id),
-  tag_id INTEGER NOT NULL REFERENCES public.Label(id),
+  label_id INTEGER NOT NULL REFERENCES public.Label(id),
   PRIMARY KEY (id)
 );
 
