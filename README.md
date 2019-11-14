@@ -150,11 +150,19 @@ slick.dbs.default {
 
 
 ## evolution
-マイグレーションツールである。自分のプロジェクトでは使いづらいので[Ridgepole](https://github.com/winebarrel/ridgepole)というRailsで使われているマイグレーションツールをわざわざrubyをいれて使っているが、とりあえず今回はこれでok。
+マイグレーションツールである。
+evolutionではconf/evolutions/defaultにマイグレーションファイルを入れるのがプラクティスみたいなのでそこに1.sqlというファイルを作ってSQLを書く。
 
-evolutionではconf/evolutions/defaultにマイグレーションファイルを入れるのがプラクティスみたいなのでそこに1.sqlというファイルを作ってSQLを書く。(せめてrailsみたくタイムスタンプを使ってほとんどユニークなファイルを自動生成とかしてほしい・・・)
+`application.conf`内に
+```scala
+play.evolutions.db.default.autoApply=true
+play.evolutions.db.default.autoApplyDowns=true
+```
+というオプションをつけると、migrationファイルと現在の差分を検出して勝手にupとdownをおこなってくれる。
+そのため開発中であれば1.sqlをずっと改造し続けるだけでよい。本番リリースしたら2.sql等マイグレーション用ファイルを作ればいい。
+autoApplyDownsオプションはapplication.confに書くのは非推奨なので、application.dev.confを作ってsbt runの時にファイル指定するようにするか、run時のオプションでつけるとよい。
 
-Upsが生成時、Downsがロールバック時の処理を書くそうです。
+Upsが生成時、Downsがロールバック時の処理を書くそう。
 ```sql:1.sql
 -- Users schema
 
