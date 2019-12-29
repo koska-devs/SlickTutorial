@@ -16,7 +16,7 @@ CREATE TABLE public.Memo(
 
 CREATE TABLE public.Label(
   id SERIAL NOT NULL ,
-  name INTEGER NOT NULL,
+  name TEXT NOT NULL,
   PRIMARY KEY (id)
 );
 

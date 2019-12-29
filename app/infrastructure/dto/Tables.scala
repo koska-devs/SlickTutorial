@@ -20,12 +20,12 @@ trait Tables {
 
   /** Entity class storing rows of table Label
    *  @param id Database column id SqlType(serial), AutoInc, PrimaryKey
-   *  @param name Database column name SqlType(int4) */
-  case class LabelRow(id: Int, name: Int)
+   *  @param name Database column name SqlType(text) */
+  case class LabelRow(id: Int, name: String)
   /** GetResult implicit for fetching LabelRow objects using plain SQL queries */
-  implicit def GetResultLabelRow(implicit e0: GR[Int]): GR[LabelRow] = GR{
+  implicit def GetResultLabelRow(implicit e0: GR[Int], e1: GR[String]): GR[LabelRow] = GR{
     prs => import prs._
-    LabelRow.tupled((<<[Int], <<[Int]))
+    LabelRow.tupled((<<[Int], <<[String]))
   }
   /** Table description of table label. Objects of this class serve as prototypes for rows in queries. */
   class Label(_tableTag: Tag) extends profile.api.Table[LabelRow](_tableTag, "label") {
@@ -35,8 +35,8 @@ trait Tables {
 
     /** Database column id SqlType(serial), AutoInc, PrimaryKey */
     val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
-    /** Database column name SqlType(int4) */
-    val name: Rep[Int] = column[Int]("name")
+    /** Database column name SqlType(text) */
+    val name: Rep[String] = column[String]("name")
   }
   /** Collection-like TableQuery object for table Label */
   lazy val Label = new TableQuery(tag => new Label(tag))
