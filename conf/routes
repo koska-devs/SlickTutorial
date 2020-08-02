@@ -1,5 +1,5 @@
 
-GET     /users                                   controllers.HomeController.index
+GET     /users                                   controllers.HomeController.indexWithRelatedTable
 GET     /users/count                                  controllers.HomeController.count
 GET     /users/add                            controllers.HomeController.add
 GET     /users/:userId/memos/add                           controllers.HomeController.addMemoAndLabel(userId:Int)
