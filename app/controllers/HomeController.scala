@@ -1,6 +1,7 @@
 package controllers
 
-import dto.Tables._
+import dto.Tables
+import dto.Tables.{Labelmemo, _}
 import javax.inject._
 import play.api._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -127,5 +128,28 @@ class HomeController @Inject()(
       .recover {
         case exception: Exception => InternalServerError(exception.getMessage)
       }
+  }
+
+  def delete(userId: Int): Action[AnyContent] = Action.async {
+    implicit request =>
+      //削除するユーザーを取得
+      val deleteUser = User.filter(_.id === userId.bind)
+      //削除するユーザーに関連するメモを取得
+      val deleteMemo  = Memo.filter(_.userId in deleteUser.map(_.id))
+
+      //削除するユーザーに関連するメモに関連するラベルメモ(中間テーブル)を取得
+      val deleteLabelMemos  = Labelmemo.filter(_.memoId in deleteMemo.map(_.id)).result
+
+      db.run(
+        //削除するラベルメモをもとに、LabelとLabelMemoテーブルを削除
+        // 一旦resultからmapしないと先にlabelMemoが削除されて関連するラベルが削除されない。
+        deleteLabelMemos.flatMap(
+          //取得したラベルメモをもとに、LabelとLabelMemoテーブルを削除
+          result =>(Labelmemo.filter(_.id inSet result.map(_.id)).delete >> Label.filter(_.id  inSet result.map(_.tagId)).delete)
+        ) >>
+        deleteMemo.delete >> //これはAndThen構文。順番に実行し最後の結果のみ返す。
+        deleteUser.delete
+      ).map(_ => Ok("ユーザーを削除しました。"))
+
   }
 }
