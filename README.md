@@ -87,9 +87,13 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.7.3")
 //以下、追加。
 //この辺は必要なのか不明
 resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
-addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
+
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.7.3")
+addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0"
+
 
 //ここは必要
+addSbtPlugin("com.github.tototoshi" % "sbt-slick-codegen" %"1.4.0")
 libraryDependencies+=  "org.postgresql" % "postgresql" % "42.2.5"
 ```
 とりあえずこんな感じで書いておく。余計なのも入っているかもしれない(他のプロジェクトからコピペして明らかにいらないのだけ削除したので)が気にしない。
